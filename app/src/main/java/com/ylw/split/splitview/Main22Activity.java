@@ -48,8 +48,6 @@ public class Main22Activity extends AppCompatActivity {
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
                 TextView textView = (TextView) inflater.inflate(R.layout.textview, null);
-//                TextView textView = new TextView(Main22Activity.this);
-//                textView.setLayoutParams(new SplitView.LayoutParams(100,200));
                 textView.setText("Page : " + position);
                 textView.setTextSize(60);
                 textView.setTextColor(0xff88ff66);
