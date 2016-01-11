@@ -50,7 +50,7 @@ public class SplitView2 extends LinearLayout {
         mDragger = ViewDragHelper.create(this, 1.0f, new ViewDragHelper.Callback() {
             @Override
             public boolean tryCaptureView(View child, int pointerId) {
-                View c = getgChildAt(1);
+                View c = getChildAt(1);
                 return child == c;
             }
 
