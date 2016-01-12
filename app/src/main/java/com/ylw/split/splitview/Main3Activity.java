@@ -50,6 +50,7 @@ public class Main3Activity extends Activity {
 //                textView.setText("Page : " + position);
 //                textView.setTextSize(60);
 //                textView.setTextColor(0xff88ff66);
+                textView.setId(position);
                 textView.setBackgroundColor(0xFFFFCCCC);
                 textView.setWebViewClient(wbClient);
                 textView.loadUrl("http://www.guokr.com/post/71625" + position);

@@ -17,6 +17,7 @@
 package com.ylw.split.splitview.view;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
@@ -30,7 +31,7 @@ import android.widget.TextView;
 
 
 public class SplitView3 extends LinearLayout {
-    private static final String TAG = "SplitView2";
+    private static final String TAG = "SplitView3";
     private ViewDragHelper mDragger;
 
     public SplitView3(Context context) {
@@ -45,7 +46,7 @@ public class SplitView3 extends LinearLayout {
     View vHead;                   //视频
     WebView vTop;                 //题干
     View vCenter;                 //拖动条
-    View vBottom;                 //选项
+    ViewPager vBottom;            //选项
 
     View dragView;                //当前拖动的View
 
@@ -53,7 +54,6 @@ public class SplitView3 extends LinearLayout {
     int vState = 1;               //视频控件状态 0:折叠 1:展开
     float videoPercent;           //视频控件高度百分比
     float w_h = 16 / 9f;          //视频画面宽高比
-
 
     float vtH;                    //题干View高度
     float vbH;                    //选项View高度
@@ -73,6 +73,14 @@ public class SplitView3 extends LinearLayout {
                     if (vState == 1 || vTop.getScrollY() == 0)
                         return true;
                 }
+                if (child == vBottom) {
+//获取到Viewpager中当前显示的WebView，WebView的id必须是在ViewPager中的position
+                    int ci = vBottom.getCurrentItem();
+                    WebView webView = (WebView) vBottom.findViewById(ci);
+                    if (webView.getScrollY() == 0) {
+                        return true;
+                    }
+                }
                 return false;
             }
 
@@ -83,19 +91,20 @@ public class SplitView3 extends LinearLayout {
 
             @Override
             public int clampViewPositionVertical(View child, int top, int dy) {
-                if (dragView == vCenter) {
+                if (dragView == vCenter) {              //拖动中间的拖动条
                     changeLayout();
-                    if (child == vCenter) {
-                        if (top < vHead.getBottom())
-                            return vHead.getBottom();
-                    }
-                    return top;
+                    if (top < vHead.getBottom())
+                        return vHead.getBottom();
                 }
 
-                if (dragView == vTop) {
+                if (dragView == vTop) {                 //拖动上部的WebView
                     changeLayout_vTop();
                     if (top < 0)
                         return 0;
+                }
+                if (dragView == vBottom) {              //拖动底部的ViewPager
+                    changeLayout_vBottom();
+                    top = (top > getHeight()) ? getHeight() : top;
                 }
                 return top;
             }
@@ -103,8 +112,6 @@ public class SplitView3 extends LinearLayout {
             @Override
             public void onViewDragStateChanged(int state) {
                 Log.d(TAG, "onViewDragStateChanged - " + state);
-                if (state == ViewDragHelper.STATE_DRAGGING) {
-                }
                 if (state == ViewDragHelper.STATE_IDLE) {
                     if (dragView == vCenter) {
                         changeLayout();
@@ -123,7 +130,7 @@ public class SplitView3 extends LinearLayout {
                         ViewGroup.LayoutParams lbp = vBottom.getLayoutParams();
                         if (vState == 0) {
                             lhp.height = 0;                                // head
-                            ltp.height = vCenter.getTop() - 0;             // top
+                            ltp.height = vCenter.getTop();                 // top
                         } else {
                             lhp.height = vHeadHeight;                      // head
                             ltp.height = vCenter.getTop() - vHeadHeight;   // top
@@ -132,6 +139,15 @@ public class SplitView3 extends LinearLayout {
 
 //                        vHead.requestLayout();
 //                        vTop.requestLayout();
+                        vBottom.requestLayout();
+                    } else if (dragView == vBottom) {
+                        changeLayout_vBottom();
+                        ViewGroup.LayoutParams ltp = vTop.getLayoutParams();
+                        ViewGroup.LayoutParams lbp = vBottom.getLayoutParams();
+                        ltp.height = vCenter.getTop() - vHead.getBottom();
+                        lbp.height = getHeight() - vCenter.getBottom();
+
+                        // vTop.requestLayout();
                         vBottom.requestLayout();
                     }
                 }
@@ -169,10 +185,30 @@ public class SplitView3 extends LinearLayout {
                     mDragger.settleCapturedViewAt(0, yPosition);
                     invalidate();
                 }
+                if (releasedChild == vBottom) {
+                    float yPosition = yvel / 10 + vBottom.getTop();
+                    float h = getHeight();
+                    float vCenterHeight = vCenter.getHeight();
+
+                    yPosition = (yPosition < vCenterHeight) ? vCenterHeight : yPosition;
+                    yPosition = (yPosition > h) ? h : yPosition;
+
+                    mDragger.settleCapturedViewAt(0, (int) yPosition);
+                    invalidate();
+                }
             }
 
             @Override
             public int getViewVerticalDragRange(View child) {
+                if (child == vTop) {
+                    return getMeasuredHeight();
+                }
+                if (child == vCenter) {
+                    return getMeasuredHeight() - child.getMeasuredHeight();
+                }
+                if (child == vBottom) {
+                    return getMeasuredHeight() - child.getMeasuredHeight();
+                }
                 return getMeasuredHeight() - child.getMeasuredHeight();
             }
         });
@@ -184,10 +220,10 @@ public class SplitView3 extends LinearLayout {
         int h = getHeight();
         vTop.layout(0, vHead.getBottom(), w, vCenter.getTop());
         vBottom.layout(0, vCenter.getBottom(), w, h);
-        int cc = ((ViewGroup) vBottom).getChildCount();
+        int cc = vBottom.getChildCount();
 
-        ViewPager vp = (ViewPager) vBottom;
-        int bw = vp.getWidth();
+        ViewPager vp = vBottom;
+//        int bw = vp.getWidth();
         int bh = vp.getHeight();
 
         for (int i = 0; i < cc; i++) {
@@ -198,7 +234,7 @@ public class SplitView3 extends LinearLayout {
 
     private void changeLayout_vTop() {
         int w = getWidth();
-        int h = getHeight();
+//        int h = getHeight();
 
         if (vTop.getTop() > 0) {
             videoPercent = vTop.getTop() * 1f / vHeadHeight;
@@ -225,6 +261,26 @@ public class SplitView3 extends LinearLayout {
 //        vBottom.layout(0, vCenter.getBottom(), w, h);
     }
 
+    private void changeLayout_vBottom() {
+        int w = getWidth();
+        int h = getHeight();
+
+        int bt = vBottom.getTop();
+        vBottom.layout(0, bt, w, h);
+        vTop.layout(0, vHead.getBottom(), w, bt + vCenter.getHeight());
+        vCenter.layout(0, bt - vCenter.getHeight(), w, bt);
+        int cc = vBottom.getChildCount();
+
+        ViewPager vp = vBottom;
+//        int bw = vp.getWidth();
+        int bh = vp.getHeight();
+
+        for (int i = 0; i < cc; i++) {
+            View v = vp.getChildAt(i);
+            v.layout(v.getLeft(), 0, v.getRight(), bh);
+        }
+    }
+
     @Override
     public void computeScroll() {
         super.computeScroll();
@@ -233,6 +289,8 @@ public class SplitView3 extends LinearLayout {
                 changeLayout_vTop();
             } else if (dragView == vCenter) {
                 changeLayout();
+            } else if (dragView == vBottom) {
+                changeLayout_vBottom();
             }
             invalidate();
         }
@@ -242,9 +300,10 @@ public class SplitView3 extends LinearLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         vHead = getChildAt(0);
-        vTop = (WebView) getChildAt(1); //这个必须是WebView
+        vTop = (WebView) getChildAt(1);        //这个必须是WebView
         vCenter = getChildAt(2);
-        vBottom = getChildAt(3);
+        vBottom = (ViewPager) getChildAt(3);   //这个必须是ViewPager
+
         vtH = vTop.getMeasuredHeight();
         vbH = vBottom.getMeasuredHeight();
         vHeadHeight = (int) (vTop.getMeasuredWidth() / w_h);
@@ -255,25 +314,59 @@ public class SplitView3 extends LinearLayout {
         super.onLayout(changed, l, t, r, b);
     }
 
+    private Rect r = new Rect();
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (event.getHistorySize() > 0 && dragView == vTop) {
-            if (event.getY() > event.getHistoricalY(0)) {         //向下滑动
-
-                if (vTop.getScrollY() == 0) {
-                    return mDragger.shouldInterceptTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            vTop.getGlobalVisibleRect(r);
+            if (r.contains((int) event.getX(), (int) event.getY())) {
+                dragView = vTop;
+            }
+            vCenter.getGlobalVisibleRect(r);
+            if (r.contains((int) event.getX(), (int) event.getY())) {
+                dragView = vCenter;
+            }
+            vBottom.getGlobalVisibleRect(r);
+            if (r.contains((int) event.getX(), (int) event.getY())) {
+                dragView = vBottom;
+            }
+        }
+        if (event.getHistorySize() > 0) {
+//            if (dragView == vTop) {                                   //vTop
+            if (dragView == vTop) {                                   //vTop
+                if (event.getY() > event.getHistoricalY(0)) {         //向下滑动
+                    if (vTop.getScrollY() == 0) {
+                        return mDragger.shouldInterceptTouchEvent(event);
+                    } else {
+                        return false;
+                    }
+                } else if (event.getY() < event.getHistoricalY(0)) {  //向上滑动
+                    if (vTop.getTop() > 0) {
+                        return mDragger.shouldInterceptTouchEvent(event);
+                    } else {
+                        return false;
+                    }
+                } else if (event.getY() == event.getHistoricalY(0)) {
+                    Log.d("SplitView", "onInterceptTouchEvent - " +
+                            "event.getY() == event.getHistoricalY(0)");
+                    return false;
+                }
+            } else if (dragView == vBottom) {                         //vBottom
+                if (event.getY() > event.getHistoricalY(0)) {         //向下滑动
+                    //TODO 判断当前显示的webView内容是否在顶部
+                    int ci = vBottom.getCurrentItem();
+                    WebView webView = (WebView) vBottom.findViewById(ci);
+                    if (webView.getScrollY() == 0) {
+                        return mDragger.shouldInterceptTouchEvent(event);
+                    } else {
+                        return false;
+                    }
                 } else {
                     return false;
                 }
-            } else if (event.getY() < event.getHistoricalY(0)) {  //向上滑动
-                if (vTop.getTop() > 0) {
-                    return mDragger.shouldInterceptTouchEvent(event);
-                } else {
-                    return false;
-                }
-            } else if (event.getY() == event.getHistoricalY(0)) {
-                Log.d("SplitView", "onInterceptTouchEvent - event.getY() == event.getHistoricalY(0)");
-                return false;
+            } else if (dragView == vCenter) {
+                return mDragger.shouldInterceptTouchEvent(event);
             }
         }
         return mDragger.shouldInterceptTouchEvent(event);
