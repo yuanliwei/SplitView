@@ -169,8 +169,7 @@ public class SplitView3 extends LinearLayout {
 
                     mDragger.settleCapturedViewAt(0, (int) yPosition);
                     invalidate();
-                }
-                if (releasedChild == vTop) {
+                } else if (releasedChild == vTop) {
                     int videoHeight = vHeadHeight;
                     int yPosition = 0;
                     vState = 0;
@@ -184,8 +183,7 @@ public class SplitView3 extends LinearLayout {
                     }
                     mDragger.settleCapturedViewAt(0, yPosition);
                     invalidate();
-                }
-                if (releasedChild == vBottom) {
+                } else if (releasedChild == vBottom) {
                     float yPosition = yvel / 10 + vBottom.getTop();
                     float h = getHeight();
                     float vCenterHeight = vCenter.getHeight();
@@ -314,26 +312,15 @@ public class SplitView3 extends LinearLayout {
         super.onLayout(changed, l, t, r, b);
     }
 
-    private Rect r = new Rect();
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            vTop.getGlobalVisibleRect(r);
-            if (r.contains((int) event.getX(), (int) event.getY())) {
-                dragView = vTop;
-            }
-            vCenter.getGlobalVisibleRect(r);
-            if (r.contains((int) event.getX(), (int) event.getY())) {
-                dragView = vCenter;
-            }
-            vBottom.getGlobalVisibleRect(r);
-            if (r.contains((int) event.getX(), (int) event.getY())) {
-                dragView = vBottom;
-            }
+            initDragView(vTop, event);
+            initDragView(vCenter, event);
+            initDragView(vBottom, event);
         }
-        if (event.getHistorySize() > 0) {
-//            if (dragView == vTop) {                                   //vTop
+        if (event.getHistorySize() > 0) {                             //拦截Touch事件
             if (dragView == vTop) {                                   //vTop
                 if (event.getY() > event.getHistoricalY(0)) {         //向下滑动
                     if (vTop.getScrollY() == 0) {
@@ -348,13 +335,13 @@ public class SplitView3 extends LinearLayout {
                         return false;
                     }
                 } else if (event.getY() == event.getHistoricalY(0)) {
-                    Log.d("SplitView", "onInterceptTouchEvent - " +
+                    Log.d(TAG, "onInterceptTouchEvent - " +
                             "event.getY() == event.getHistoricalY(0)");
                     return false;
                 }
             } else if (dragView == vBottom) {                         //vBottom
                 if (event.getY() > event.getHistoricalY(0)) {         //向下滑动
-                    //TODO 判断当前显示的webView内容是否在顶部
+                    // 判断当前显示的webView内容是否在顶部
                     int ci = vBottom.getCurrentItem();
                     WebView webView = (WebView) vBottom.findViewById(ci);
                     if (webView.getScrollY() == 0) {
@@ -370,6 +357,23 @@ public class SplitView3 extends LinearLayout {
             }
         }
         return mDragger.shouldInterceptTouchEvent(event);
+    }
+
+    private Rect r = new Rect();
+
+    /**
+     * 初始化当前拖动的view
+     *
+     * @param v
+     * @param e
+     */
+    private void initDragView(View v, MotionEvent e) {
+        if (v != null) {
+            v.getGlobalVisibleRect(r);
+            if (r.contains((int) e.getX(), (int) e.getY())) {
+                dragView = v;
+            }
+        }
     }
 
     @Override
