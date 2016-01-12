@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.ylw.split.splitview.Main2Activity">
+
+    <com.ylw.split.splitview.view.SplitView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFF8888"
+            android:gravity="center"
+            android:text="TOP"
+            android:textSize="60sp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="30dp"
+                android:background="#FF88FF88"
+                android:gravity="center"
+                android:text="BOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOMBOTTOM"
+                android:textSize="63sp"/>
+        </ScrollView>
+
+
+    </com.ylw.split.splitview.view.SplitView>
+</RelativeLayout>
