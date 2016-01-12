@@ -123,8 +123,7 @@ public class SplitView3 extends LinearLayout {
                         ltp.height = vCenter.getTop() - vHead.getBottom();
                         lbp.height = getHeight() - vCenter.getBottom();
 
-//                    vTop.requestLayout();
-                        vBottom.requestLayout();
+                        requestLayout();
                     } else if (dragView == vTop) {
                         changeLayout_vTop();
 
@@ -140,9 +139,7 @@ public class SplitView3 extends LinearLayout {
                         }
                         lbp.height = getHeight() - vCenter.getBottom();    // bottom
 
-//                        vHead.requestLayout();
-//                        vTop.requestLayout();
-                        vBottom.requestLayout();
+                        requestLayout();
                     } else if (dragView == vBottom) {
                         changeLayout_vBottom();
                         ViewGroup.LayoutParams ltp = vTop.getLayoutParams();
@@ -150,8 +147,7 @@ public class SplitView3 extends LinearLayout {
                         ltp.height = vCenter.getTop() - vHead.getBottom();
                         lbp.height = getHeight() - vCenter.getBottom();
 
-                        // vTop.requestLayout();
-                        vBottom.requestLayout();
+                        requestLayout();
                     }
                 }
             }
@@ -318,7 +314,7 @@ public class SplitView3 extends LinearLayout {
         if (firstLayout) {
             firstLayout = false;
             //初始化内部控件
-            initViewState(true, true, false, 2 / 3f);
+            initViewState(false, false, false, 2 / 3f);
         }
     }
 
@@ -438,9 +434,6 @@ public class SplitView3 extends LinearLayout {
                 lbp.height = 0;
             }
         }
-//      vHead.requestLayout();
-//      vTop.requestLayout();
-//      vBottom.requestLayout();
         requestLayout();
     }
 
