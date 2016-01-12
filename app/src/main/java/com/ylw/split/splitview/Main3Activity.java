@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
 
 public class Main3Activity extends Activity {
 
@@ -47,11 +46,13 @@ public class Main3Activity extends Activity {
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                TextView textView = (TextView) inflater.inflate(R.layout.textview, null);
-                textView.setText("Page : " + position);
-                textView.setTextSize(60);
-                textView.setTextColor(0xff88ff66);
-                textView.setBackgroundColor(0xffff6666);
+                WebView textView = (WebView) inflater.inflate(R.layout.webview, null);
+//                textView.setText("Page : " + position);
+//                textView.setTextSize(60);
+//                textView.setTextColor(0xff88ff66);
+                textView.setBackgroundColor(0xFFFFCCCC);
+                textView.setWebViewClient(wbClient);
+                textView.loadUrl("http://www.guokr.com/post/71625" + position);
                 container.addView(textView);
                 map.append(position, textView);
                 return textView;
@@ -64,6 +65,7 @@ public class Main3Activity extends Activity {
             }
         };
         wBottom.setAdapter(adapter);
+        wBottom.setOffscreenPageLimit(5);
     }
 
     WebViewClient wbClient = new WebViewClient() {

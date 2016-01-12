@@ -212,7 +212,7 @@ public class SplitView3 extends LinearLayout {
         } else {
             videoPercent = 0;
         }
-        ((TextView) vHead).setText("视频：" + videoPercent);
+        ((TextView) vHead).setText(String.format("视频：%.02f", videoPercent));
         if (videoPercent > 1) {
             vHead.getBackground().setAlpha(0xff);
         } else {
