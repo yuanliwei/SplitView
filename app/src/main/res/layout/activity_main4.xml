@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ylw.split.splitview.Main22Activity">
+
+    <com.ylw.split.splitview.view.SplitView3
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- 视频 #FF6677FF-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@drawable/xx"
+            android:gravity="center_horizontal"
+            android:text="视频"
+            android:textColor="#FFFF8822"
+            android:textSize="20sp" />
+
+        <!-- webview -->
+        <WebView
+            android:id="@+id/web_top"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- 拖动条 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="#FFFF8888"
+            android:gravity="center"
+            android:text="DragMe"
+            android:textSize="20sp" />
+
+        <!-- 选项viewpager -->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        </android.support.v4.view.ViewPager>
+
+    </com.ylw.split.splitview.view.SplitView3>
+</RelativeLayout>

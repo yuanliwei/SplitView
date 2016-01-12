@@ -18,7 +18,13 @@
         </activity>
         <activity android:name=".Main2Activity">
         </activity>
-        <activity android:name=".Main3Activity" android:theme="@android:style/Theme.Light.NoTitleBar">
+        <activity
+            android:name=".Main3Activity"
+            android:theme="@android:style/Theme.Light.NoTitleBar">
+        </activity>
+        <activity
+            android:name=".Main4Activity"
+            android:theme="@android:style/Theme.Light.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

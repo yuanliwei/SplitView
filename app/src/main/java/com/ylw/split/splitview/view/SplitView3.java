@@ -33,6 +33,8 @@ import android.widget.TextView;
 public class SplitView3 extends LinearLayout {
     private static final String TAG = "SplitView3";
     private ViewDragHelper mDragger;
+    private boolean hasVideo;      //是否有视频
+    private boolean hasChoice;     //是否有选项
 
     public SplitView3(Context context) {
         this(context, null);
@@ -50,6 +52,7 @@ public class SplitView3 extends LinearLayout {
 
     View dragView;                //当前拖动的View
 
+    int vCenterHeight = 10;       //拖动控件的高度
     int vHeadHeight = 320;        //视频控件高度
     int vState = 1;               //视频控件状态 0:折叠 1:展开
     float videoPercent;           //视频控件高度百分比
@@ -65,15 +68,15 @@ public class SplitView3 extends LinearLayout {
             @Override
             public boolean tryCaptureView(View child, int pointerId) {
                 dragView = child;
-                if (child == vCenter) {
+                if (hasChoice && child == vCenter) {
                     return true;
                 }
-                if (child == vTop) {
+                if (hasVideo && child == vTop) {
 //                    if (vTop.getScrollY() == 0)
                     if (vState == 1 || vTop.getScrollY() == 0)
                         return true;
                 }
-                if (child == vBottom) {
+                if (hasChoice && child == vBottom) {
 //获取到Viewpager中当前显示的WebView，WebView的id必须是在ViewPager中的position
                     int ci = vBottom.getCurrentItem();
                     WebView webView = (WebView) vBottom.findViewById(ci);
@@ -210,7 +213,6 @@ public class SplitView3 extends LinearLayout {
                 return getMeasuredHeight() - child.getMeasuredHeight();
             }
         });
-
     }
 
     private void changeLayout() {
@@ -304,12 +306,20 @@ public class SplitView3 extends LinearLayout {
 
         vtH = vTop.getMeasuredHeight();
         vbH = vBottom.getMeasuredHeight();
+        vCenterHeight = vCenter.getMeasuredHeight();
         vHeadHeight = (int) (vTop.getMeasuredWidth() / w_h);
     }
+
+    private boolean firstLayout = true;
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
+        if (firstLayout) {
+            firstLayout = false;
+            //初始化内部控件
+            initViewState(true, true, false, 2 / 3f);
+        }
     }
 
 
@@ -369,9 +379,10 @@ public class SplitView3 extends LinearLayout {
      */
     private void initDragView(View v, MotionEvent e) {
         if (v != null) {
-            v.getGlobalVisibleRect(r);
-            if (r.contains((int) e.getX(), (int) e.getY())) {
-                dragView = v;
+            if (v.getGlobalVisibleRect(r)) {
+                if (r.contains((int) e.getX(), (int) e.getY())) {
+                    dragView = v;
+                }
             }
         }
     }
@@ -380,6 +391,57 @@ public class SplitView3 extends LinearLayout {
     public boolean onTouchEvent(MotionEvent event) {
         mDragger.processTouchEvent(event);
         return true;
+    }
+
+    /**
+     * 初始化内部控件状态：
+     *
+     * @param hasVideo  是否有视频
+     * @param showVideo 视频是否显示
+     * @param hasChoice 是否有选项卡
+     * @param t_b       题干与选项高度的比值
+     */
+    public void initViewState(boolean hasVideo, boolean showVideo, boolean hasChoice, float t_b) {
+        ViewGroup.LayoutParams lhp = vHead.getLayoutParams();
+        ViewGroup.LayoutParams ltp = vTop.getLayoutParams();
+        ViewGroup.LayoutParams lcp = vCenter.getLayoutParams();
+        ViewGroup.LayoutParams lbp = vBottom.getLayoutParams();
+        int w = getWidth();
+        int h = getHeight();
+        this.hasVideo = hasVideo;
+        this.hasChoice = hasChoice;
+
+        if (hasVideo && showVideo) {
+            vState = 1;
+            lhp.height = vHeadHeight;
+            int h_r = h - vHeadHeight;                        // 剩余空间
+            if (hasChoice) {
+                h_r -= vCenterHeight;
+                ltp.height = (int) (h_r * (1 - t_b));
+                lbp.height = h_r - ltp.height;
+            } else {
+                ltp.height = h_r;
+                lcp.height = 0;
+                lbp.height = 0;
+            }
+        } else {
+            vState = 0;
+            lhp.height = 0;
+            int h_r = h;                                     // 剩余空间
+            if (hasChoice) {
+                h_r -= vCenterHeight;
+                ltp.height = (int) (h_r * (1 - t_b));
+                lbp.height = h_r - ltp.height;
+            } else {
+                ltp.height = h_r;
+                lcp.height = 0;
+                lbp.height = 0;
+            }
+        }
+//      vHead.requestLayout();
+//      vTop.requestLayout();
+//      vBottom.requestLayout();
+        requestLayout();
     }
 
 }
