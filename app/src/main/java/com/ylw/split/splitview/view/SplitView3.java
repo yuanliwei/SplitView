@@ -267,7 +267,7 @@ public class SplitView3 extends LinearLayout {
 
         int bt = vBottom.getTop();
         vBottom.layout(0, bt, w, h);
-        vTop.layout(0, vHead.getBottom(), w, bt + vCenter.getHeight());
+        vTop.layout(0, vHead.getBottom(), w, bt - vCenter.getHeight());
         vCenter.layout(0, bt - vCenter.getHeight(), w, bt);
         int cc = vBottom.getChildCount();
 
