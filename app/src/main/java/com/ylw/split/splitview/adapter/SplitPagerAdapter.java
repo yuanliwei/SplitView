@@ -13,8 +13,11 @@ import android.webkit.WebViewClient;
 import com.ylw.split.splitview.R;
 import com.ylw.split.splitview.view.SplitView3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by y on 2016/1/12.
+ * Created by 袁立位 on 2016/1/12.
  */
 public class SplitPagerAdapter extends PagerAdapter {
 
@@ -79,4 +82,9 @@ public class SplitPagerAdapter extends PagerAdapter {
             return true;
         }
     };
+
+    List<PagerData> dataList = new ArrayList<>();
+    private void initDataList(){
+
+    }
 }
