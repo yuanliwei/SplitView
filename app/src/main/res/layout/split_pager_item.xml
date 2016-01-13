@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.ylw.split.splitview.view.SplitView3 xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF0F0F0"
+    android:orientation="vertical">
+
+    <!-- 视频 #FF6677FF-->
+    <TextView
+        android:id="@+id/spi_head"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/xx"
+        android:gravity="center_horizontal"
+        android:text="视频"
+        android:textColor="#FFFF8822"
+        android:textSize="20sp" />
+
+    <!-- webview -->
+    <WebView
+        android:id="@+id/spi_top"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- 拖动条 -->
+    <TextView
+        android:id="@+id/spi_drag"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="#FFFFAAFF"
+        android:gravity="center"
+        android:text="DragMe"
+        android:textSize="20sp" />
+
+    <!-- 选项viewpager -->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/spi_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    </android.support.v4.view.ViewPager>
+
+</com.ylw.split.splitview.view.SplitView3>

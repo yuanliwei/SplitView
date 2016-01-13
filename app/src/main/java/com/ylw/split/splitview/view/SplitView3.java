@@ -80,7 +80,7 @@ public class SplitView3 extends LinearLayout {
 //获取到Viewpager中当前显示的WebView，WebView的id必须是在ViewPager中的position
                     int ci = vBottom.getCurrentItem();
                     WebView webView = (WebView) vBottom.findViewById(ci);
-                    if (webView.getScrollY() == 0) {
+                    if (webView != null && webView.getScrollY() == 0) {
                         return true;
                     }
                 }
@@ -300,6 +300,7 @@ public class SplitView3 extends LinearLayout {
         vCenter = getChildAt(2);
         vBottom = (ViewPager) getChildAt(3);   //这个必须是ViewPager
 
+        if (isInEditMode()) return;
         vtH = vTop.getMeasuredHeight();
         vbH = vBottom.getMeasuredHeight();
         vCenterHeight = vCenter.getMeasuredHeight();
@@ -311,10 +312,10 @@ public class SplitView3 extends LinearLayout {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        if (firstLayout) {
+        if (firstLayout && !isInEditMode()) {
             firstLayout = false;
             //初始化内部控件
-            initViewState(false, false, false, 2 / 3f);
+            initViewState(true, true, true, 2 / 3f);
         }
     }
 
