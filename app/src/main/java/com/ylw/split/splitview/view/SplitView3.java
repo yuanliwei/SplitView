@@ -33,8 +33,12 @@ import android.widget.TextView;
 public class SplitView3 extends LinearLayout {
     private static final String TAG = "SplitView3";
     private ViewDragHelper mDragger;
-    private boolean hasVideo;      //是否有视频
-    private boolean hasChoice;     //是否有选项
+    private boolean hasVideo = true;      //是否有视频
+    private boolean hasChoice = true;     //是否有选项
+    private boolean showVideo = true;     //是否显示视频
+    private float t_b = 3 / 2f;             //上下两部分高度比例
+
+    private boolean hasInit = false;
 
     public SplitView3(Context context) {
         this(context, null);
@@ -305,6 +309,8 @@ public class SplitView3 extends LinearLayout {
         vbH = vBottom.getMeasuredHeight();
         vCenterHeight = vCenter.getMeasuredHeight();
         vHeadHeight = (int) (vTop.getMeasuredWidth() / w_h);
+
+        hasInit = true;
     }
 
     private boolean firstLayout = true;
@@ -315,7 +321,7 @@ public class SplitView3 extends LinearLayout {
         if (firstLayout && !isInEditMode()) {
             firstLayout = false;
             //初始化内部控件
-            initViewState(true, true, true, 2 / 3f);
+            initViewState(hasVideo, showVideo, hasChoice, t_b);
         }
     }
 
@@ -396,25 +402,30 @@ public class SplitView3 extends LinearLayout {
      * @param hasVideo  是否有视频
      * @param showVideo 视频是否显示
      * @param hasChoice 是否有选项卡
-     * @param t_b       题干与选项高度的比值
+     * @param t_b_      题干与选项高度的比值
      */
-    public void initViewState(boolean hasVideo, boolean showVideo, boolean hasChoice, float t_b) {
+    public void initViewState(boolean hasVideo, boolean showVideo, boolean hasChoice, float t_b_) {
+        this.hasVideo = hasVideo;
+        this.showVideo = showVideo;
+        this.hasChoice = hasChoice;
+        this.t_b = t_b_;
+        if (hasInit == false) return;
         ViewGroup.LayoutParams lhp = vHead.getLayoutParams();
         ViewGroup.LayoutParams ltp = vTop.getLayoutParams();
         ViewGroup.LayoutParams lcp = vCenter.getLayoutParams();
         ViewGroup.LayoutParams lbp = vBottom.getLayoutParams();
         int w = getWidth();
         int h = getHeight();
-        this.hasVideo = hasVideo;
-        this.hasChoice = hasChoice;
 
         if (hasVideo && showVideo) {
             vState = 1;
+            videoPercent = 1;
             lhp.height = vHeadHeight;
             int h_r = h - vHeadHeight;                        // 剩余空间
             if (hasChoice) {
                 h_r -= vCenterHeight;
-                ltp.height = (int) (h_r * (1 - t_b));
+                t_b_ = 1 / (t_b_ + 1);
+                ltp.height = (int) (h_r * (1 - t_b_));
                 lbp.height = h_r - ltp.height;
             } else {
                 ltp.height = h_r;
@@ -423,11 +434,19 @@ public class SplitView3 extends LinearLayout {
             }
         } else {
             vState = 0;
+            videoPercent = 0;
             lhp.height = 0;
             int h_r = h;                                     // 剩余空间
             if (hasChoice) {
                 h_r -= vCenterHeight;
-                ltp.height = (int) (h_r * (1 - t_b));
+
+                //   2 / 3
+                //   1 + 2 /3 = 5 / 3
+                //   1 / (5 / 3) = 3 / 5
+                //   1 -  3 / 5  = 2 / 5
+
+                t_b_ = 1 / (t_b_ + 1);
+                ltp.height = (int) (h_r * (1 - t_b_));
                 lbp.height = h_r - ltp.height;
             } else {
                 ltp.height = h_r;
@@ -435,6 +454,9 @@ public class SplitView3 extends LinearLayout {
                 lbp.height = 0;
             }
         }
+        vHead.requestLayout();
+        vTop.requestLayout();
+        vBottom.requestLayout();
         requestLayout();
     }
 

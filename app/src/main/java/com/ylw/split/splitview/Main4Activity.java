@@ -29,7 +29,12 @@ public class Main4Activity extends Activity {
 
         adapter = new SplitPagerAdapter(this);
         pager.setAdapter(adapter);
-        pager.setOffscreenPageLimit(5);
+//        pager.setOffscreenPageLimit(5);
+        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+            }
+        });
     }
 
     WebViewClient wbClient = new WebViewClient() {
