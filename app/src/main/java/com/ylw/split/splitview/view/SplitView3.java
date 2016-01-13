@@ -454,6 +454,7 @@ public class SplitView3 extends LinearLayout {
                 lbp.height = 0;
             }
         }
+        vHead.getBackground().setAlpha((int) (0xff * videoPercent));
         vHead.requestLayout();
         vTop.requestLayout();
         vBottom.requestLayout();
