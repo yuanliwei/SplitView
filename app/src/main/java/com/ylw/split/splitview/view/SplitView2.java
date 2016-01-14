@@ -27,22 +27,18 @@ import android.widget.LinearLayout;
 
 public class SplitView2 extends LinearLayout {
     private static final String TAG = "SplitView2";
-    private ViewDragHelper mDragger;
-
-    public SplitView2(Context context) {
-        this(context, null);
-    }
-
-    public SplitView2(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-
     View vTop;
     View vCenter;
     View vBottom;
     float vtH;
     float vbH;
+    private ViewDragHelper mDragger;
+    public SplitView2(Context context) {
+        this(context, null);
+    }
+    public SplitView2(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
 
     public SplitView2(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);

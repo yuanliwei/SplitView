@@ -15,6 +15,14 @@ import android.widget.TextView;
 
 public class Main22Activity extends AppCompatActivity {
 
+    WebViewClient wbClient = new WebViewClient() {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
+            view.loadUrl(url);
+            return true;
+        }
+    };
     private PagerAdapter adapter;
     private LayoutInflater inflater;
 
@@ -47,7 +55,7 @@ public class Main22Activity extends AppCompatActivity {
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                TextView textView = (TextView) inflater.inflate(R.layout.textview, null);
+                TextView textView = (TextView) inflater.inflate(R.layout.hw_textview, null);
                 textView.setText("Page : " + position);
                 textView.setTextSize(60);
                 textView.setTextColor(0xff88ff66);
@@ -65,14 +73,5 @@ public class Main22Activity extends AppCompatActivity {
         };
         wBottom.setAdapter(adapter);
     }
-
-    WebViewClient wbClient = new WebViewClient() {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
-            view.loadUrl(url);
-            return true;
-        }
-    };
 
 }

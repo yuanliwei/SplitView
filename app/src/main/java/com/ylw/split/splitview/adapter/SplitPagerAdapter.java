@@ -23,6 +23,15 @@ import java.util.List;
 public class SplitPagerAdapter extends PagerAdapter {
 
     private final Context context;
+    WebViewClient wbClient = new WebViewClient() {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
+            view.loadUrl(url);
+            return true;
+        }
+    };
+    List<PagerData> dataList = new ArrayList<>();
     private SparseArray<Object> map = new SparseArray<Object>();
     private LayoutInflater inflater;
 
@@ -44,7 +53,7 @@ public class SplitPagerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        SplitView3 splitView = (SplitView3) inflater.inflate(R.layout.split_pager_item, null);
+        SplitView3 splitView = (SplitView3) inflater.inflate(R.layout.hw_split_pager_item, null);
         ItemHolder holder = new ItemHolder();
         holder.head = splitView.findViewById(R.id.spi_head);
         holder.top = (WebView) splitView.findViewById(R.id.spi_top);
@@ -66,7 +75,7 @@ public class SplitPagerAdapter extends PagerAdapter {
     private void initHolderView(SplitView3 splitView, ItemHolder holder, int position) {
         PagerData pagerData = dataList.get(position);
         // init head
-        // init webview
+        // init hw_webview
         holder.top.setWebViewClient(wbClient);
         holder.top.loadUrl(pagerData.getTopUrl());
         // init pager
@@ -80,24 +89,6 @@ public class SplitPagerAdapter extends PagerAdapter {
                 pagerData.getT_b());
 
     }
-
-    class ItemHolder {
-        public View head;                      //视频
-        public WebView top;                    //题干WebView
-        public View center;                    //拖动条
-        public ViewPager pager;                //ViewPager选项
-    }
-
-    WebViewClient wbClient = new WebViewClient() {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
-            view.loadUrl(url);
-            return true;
-        }
-    };
-
-    List<PagerData> dataList = new ArrayList<>();
 
     private void initDataList() {
         int urlCount = UrlData.urls.length;
@@ -129,5 +120,12 @@ public class SplitPagerAdapter extends PagerAdapter {
 //        dataList.get(6).setT_b(4 / 6f);
 //        dataList.get(7).setT_b(5 / 6f);
 //        dataList.get(8).setT_b(6 / 6f);
+    }
+
+    class ItemHolder {
+        public View head;                      //视频
+        public WebView top;                    //题干WebView
+        public View center;                    //拖动条
+        public ViewPager pager;                //ViewPager选项
     }
 }

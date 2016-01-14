@@ -13,6 +13,14 @@ import com.ylw.split.splitview.adapter.SplitPagerAdapter;
 
 public class Main4Activity extends Activity {
 
+    WebViewClient wbClient = new WebViewClient() {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
+            view.loadUrl(url);
+            return true;
+        }
+    };
     private PagerAdapter adapter;
     private LayoutInflater inflater;
 
@@ -20,12 +28,12 @@ public class Main4Activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        setContentView(R.layout.activity_main4);
+        setContentView(R.layout.hw_activity_main4);
         initView();
     }
 
     private void initView() {
-        ViewPager pager = (ViewPager) findViewById(R.id.main4_pager);
+        ViewPager pager = (ViewPager) findViewById(R.id.hw_main4_pager);
 
         adapter = new SplitPagerAdapter(this);
         pager.setAdapter(adapter);
@@ -36,14 +44,5 @@ public class Main4Activity extends Activity {
             }
         });
     }
-
-    WebViewClient wbClient = new WebViewClient() {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
-            view.loadUrl(url);
-            return true;
-        }
-    };
 
 }

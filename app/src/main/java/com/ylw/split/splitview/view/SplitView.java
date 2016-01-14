@@ -49,108 +49,22 @@ import java.util.ArrayList;
 
 
 public class SplitView extends ViewGroup {
+    static final SlidingPanelLayoutImpl IMPL;
     private static final String TAG = "SplitView";
-
     /**
      * Default size of the overhang for a pane in the open state. At least this much of a sliding
      * pane will remain visible. This indicates that there is more content available and provides a
      * "physical" edge to grab to pull it closed.
      */
     private static final int DEFAULT_OVERHANG_SIZE = 32; // dp;
-
     /**
      * If no fade color is given by default it will fade to 80% gray.
      */
     private static final int DEFAULT_FADE_COLOR = 0xcccccccc;
-
-    /**
-     * The fade color used for the sliding panel. 0 = no fading.
-     */
-    private int mSliderFadeColor = DEFAULT_FADE_COLOR;
-
     /**
      * Minimum velocity that will be detected as a fling
      */
     private static final int MIN_FLING_VELOCITY = 400; // dips per second
-
-    /**
-     * The fade color used for the panel covered by the slider. 0 = no fading.
-     */
-    private int mCoveredFadeColor;
-
-    /**
-     * Drawable used to draw the shadow between panes by default.
-     */
-    private Drawable mShadowDrawableLeft;
-
-    /**
-     * Drawable used to draw the shadow between panes to support RTL (right to left language).
-     */
-    private Drawable mShadowDrawableRight;
-
-    /**
-     * The size of the overhang in pixels. This is the minimum section of the sliding panel that
-     * will be visible in the open state to allow for a closing drag.
-     */
-    private final int mOverhangSize;
-
-    /**
-     * True if a panel can slide with the current measurements
-     */
-    private boolean mCanSlide;
-
-    /**
-     * The child view that can slide, if any.
-     */
-    private View mSlideableView;
-
-    /**
-     * How far the panel is offset from its closed position. range [0, 1] where 0 = closed, 1 =
-     * open.
-     */
-    private float mSlideOffset;
-
-    /**
-     * How far the non-sliding panel is parallaxed from its usual position when open. range [0, 1]
-     */
-    private float mParallaxOffset;
-
-    /**
-     * How far in pixels the slideable panel may move.
-     */
-    private int mSlideRange;
-
-    /**
-     * A panel view is locked into internal scrolling or another condition that is preventing a
-     * drag.
-     */
-    private boolean mIsUnableToDrag;
-
-    /**
-     * Distance in pixels to parallax the fixed pane by when fully closed
-     */
-    private int mParallaxBy;
-
-    private float mInitialMotionX;
-    private float mInitialMotionY;
-
-    private PanelSlideListener mPanelSlideListener;
-
-    private final ViewDragHelper mDragHelper;
-
-    /**
-     * Stores whether or not the pane was open the last time it was slideable. If open/close
-     * operations are invoked this state is modified. Used by instance state save/restore.
-     */
-    private boolean mPreservedOpenState;
-    private boolean mFirstLayout = true;
-
-    private final Rect mTmpRect = new Rect();
-
-    private final ArrayList<DisableLayerRunnable> mPostedRunnables =
-            new ArrayList<DisableLayerRunnable>();
-
-    static final SlidingPanelLayoutImpl IMPL;
 
     static {
         final int deviceVersion = Build.VERSION.SDK_INT;
@@ -164,51 +78,69 @@ public class SplitView extends ViewGroup {
     }
 
     /**
-     * Listener for monitoring events about sliding panes.
+     * The size of the overhang in pixels. This is the minimum section of the sliding panel that
+     * will be visible in the open state to allow for a closing drag.
      */
-    public interface PanelSlideListener {
-        /**
-         * Called when a sliding pane's position changes.
-         *
-         * @param panel       The child view that was moved
-         * @param slideOffset The new offset of this sliding pane within its range, from 0-1
-         */
-        public void onPanelSlide(View panel, float slideOffset);
-
-        /**
-         * Called when a sliding pane becomes slid completely open. The pane may or may not be
-         * interactive at this point depending on how much of the pane is visible.
-         *
-         * @param panel The child view that was slid to an open position, revealing other panes
-         */
-        public void onPanelOpened(View panel);
-
-        /**
-         * Called when a sliding pane becomes slid completely closed. The pane is now guaranteed to
-         * be interactive. It may now obscure other views in the layout.
-         *
-         * @param panel The child view that was slid to a closed position
-         */
-        public void onPanelClosed(View panel);
-    }
-
+    private final int mOverhangSize;
+    private final ViewDragHelper mDragHelper;
+    private final Rect mTmpRect = new Rect();
+    private final ArrayList<DisableLayerRunnable> mPostedRunnables =
+            new ArrayList<DisableLayerRunnable>();
     /**
-     * No-op stubs for {@link PanelSlideListener}. If you only want to implement a subset of the
-     * listener methods you can extend this instead of implement the full interface.
+     * The fade color used for the sliding panel. 0 = no fading.
      */
-    public static class SimplePanelSlideListener implements PanelSlideListener {
-        @Override
-        public void onPanelSlide(View panel, float slideOffset) {
-        }
-
-        @Override
-        public void onPanelOpened(View panel) {
-        }
-
-        @Override
-        public void onPanelClosed(View panel) {
-        }
-    }
+    private int mSliderFadeColor = DEFAULT_FADE_COLOR;
+    /**
+     * The fade color used for the panel covered by the slider. 0 = no fading.
+     */
+    private int mCoveredFadeColor;
+    /**
+     * Drawable used to draw the shadow between panes by default.
+     */
+    private Drawable mShadowDrawableLeft;
+    /**
+     * Drawable used to draw the shadow between panes to support RTL (right to left language).
+     */
+    private Drawable mShadowDrawableRight;
+    /**
+     * True if a panel can slide with the current measurements
+     */
+    private boolean mCanSlide;
+    /**
+     * The child view that can slide, if any.
+     */
+    private View mSlideableView;
+    /**
+     * How far the panel is offset from its closed position. range [0, 1] where 0 = closed, 1 =
+     * open.
+     */
+    private float mSlideOffset;
+    /**
+     * How far the non-sliding panel is parallaxed from its usual position when open. range [0, 1]
+     */
+    private float mParallaxOffset;
+    /**
+     * How far in pixels the slideable panel may move.
+     */
+    private int mSlideRange;
+    /**
+     * A panel view is locked into internal scrolling or another condition that is preventing a
+     * drag.
+     */
+    private boolean mIsUnableToDrag;
+    /**
+     * Distance in pixels to parallax the fixed pane by when fully closed
+     */
+    private int mParallaxBy;
+    private float mInitialMotionX;
+    private float mInitialMotionY;
+    private PanelSlideListener mPanelSlideListener;
+    /**
+     * Stores whether or not the pane was open the last time it was slideable. If open/close
+     * operations are invoked this state is modified. Used by instance state save/restore.
+     */
+    private boolean mPreservedOpenState;
+    private boolean mFirstLayout = true;
 
     public SplitView(Context context) {
         this(context, null);
@@ -235,15 +167,19 @@ public class SplitView extends ViewGroup {
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
     }
 
-    /**
-     * Set a distance to parallax the lower pane by when the upper pane is in its fully closed
-     * state. The lower pane will scroll between this position and its fully open state.
-     *
-     * @param parallaxBy Distance to parallax by in pixels
-     */
-    public void setParallaxDistance(int parallaxBy) {
-        mParallaxBy = parallaxBy;
-        requestLayout();
+    private static boolean viewIsOpaque(View v) {
+        if (ViewCompat.isOpaque(v)) return true;
+
+        // View#isOpaque didn't take all valid opaque scrollbar modes into account
+        // before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false
+        // here. On older devices, check the view's background drawable directly as a fallback.
+        if (Build.VERSION.SDK_INT >= 18) return false;
+
+        final Drawable bg = v.getBackground();
+        if (bg != null) {
+            return bg.getOpacity() == PixelFormat.OPAQUE;
+        }
+        return false;
     }
 
     /**
@@ -256,12 +192,14 @@ public class SplitView extends ViewGroup {
     }
 
     /**
-     * Set the color used to fade the sliding pane out when it is slid most of the way offscreen.
+     * Set a distance to parallax the lower pane by when the upper pane is in its fully closed
+     * state. The lower pane will scroll between this position and its fully open state.
      *
-     * @param color An ARGB-packed color value
+     * @param parallaxBy Distance to parallax by in pixels
      */
-    public void setSliderFadeColor(@ColorInt int color) {
-        mSliderFadeColor = color;
+    public void setParallaxDistance(int parallaxBy) {
+        mParallaxBy = parallaxBy;
+        requestLayout();
     }
 
     /**
@@ -273,13 +211,12 @@ public class SplitView extends ViewGroup {
     }
 
     /**
-     * Set the color used to fade the pane covered by the sliding pane out when the pane will become
-     * fully covered in the closed state.
+     * Set the color used to fade the sliding pane out when it is slid most of the way offscreen.
      *
      * @param color An ARGB-packed color value
      */
-    public void setCoveredFadeColor(@ColorInt int color) {
-        mCoveredFadeColor = color;
+    public void setSliderFadeColor(@ColorInt int color) {
+        mSliderFadeColor = color;
     }
 
     /**
@@ -288,6 +225,16 @@ public class SplitView extends ViewGroup {
     @ColorInt
     public int getCoveredFadeColor() {
         return mCoveredFadeColor;
+    }
+
+    /**
+     * Set the color used to fade the pane covered by the sliding pane out when the pane will become
+     * fully covered in the closed state.
+     *
+     * @param color An ARGB-packed color value
+     */
+    public void setCoveredFadeColor(@ColorInt int color) {
+        mCoveredFadeColor = color;
     }
 
     public void setPanelSlideListener(PanelSlideListener listener) {
@@ -314,8 +261,6 @@ public class SplitView extends ViewGroup {
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
-//    void updateObscuredViewsVisibility(View panel) {} ;
-
     void setAllChildrenVisible() {
         for (int i = 0, childCount = getChildCount(); i < childCount; i++) {
             final View child = getChildAt(i);
@@ -325,20 +270,7 @@ public class SplitView extends ViewGroup {
         }
     }
 
-    private static boolean viewIsOpaque(View v) {
-        if (ViewCompat.isOpaque(v)) return true;
-
-        // View#isOpaque didn't take all valid opaque scrollbar modes into account
-        // before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false
-        // here. On older devices, check the view's background drawable directly as a fallback.
-        if (Build.VERSION.SDK_INT >= 18) return false;
-
-        final Drawable bg = v.getBackground();
-        if (bg != null) {
-            return bg.getOpacity() == PixelFormat.OPAQUE;
-        }
-        return false;
-    }
+//    void updateObscuredViewsVisibility(View panel) {} ;
 
     @Override
     protected void onAttachedToWindow() {
@@ -703,7 +635,6 @@ public class SplitView extends ViewGroup {
         dispatchOnPanelSlide(mSlideableView);
     }
 
-
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -861,7 +792,6 @@ public class SplitView extends ViewGroup {
         setShadowDrawableRight(getResources().getDrawable(resId));
     }
 
-
     @Override
     public void draw(Canvas c) {
         super.draw(c);
@@ -896,7 +826,6 @@ public class SplitView extends ViewGroup {
         shadowDrawable.setBounds(left, top, right, bottom);
         shadowDrawable.draw(c);
     }
-
 
     /**
      * Tests scrollability within child views of v given a delta of dx.
@@ -984,6 +913,203 @@ public class SplitView extends ViewGroup {
             closePane();
         }
         mPreservedOpenState = ss.isOpen;
+    }
+
+    private boolean isLayoutRtlSupport() {
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
+    }
+
+    /**
+     * Listener for monitoring events about sliding panes.
+     */
+    public interface PanelSlideListener {
+        /**
+         * Called when a sliding pane's position changes.
+         *
+         * @param panel       The child view that was moved
+         * @param slideOffset The new offset of this sliding pane within its range, from 0-1
+         */
+        public void onPanelSlide(View panel, float slideOffset);
+
+        /**
+         * Called when a sliding pane becomes slid completely open. The pane may or may not be
+         * interactive at this point depending on how much of the pane is visible.
+         *
+         * @param panel The child view that was slid to an open position, revealing other panes
+         */
+        public void onPanelOpened(View panel);
+
+        /**
+         * Called when a sliding pane becomes slid completely closed. The pane is now guaranteed to
+         * be interactive. It may now obscure other views in the layout.
+         *
+         * @param panel The child view that was slid to a closed position
+         */
+        public void onPanelClosed(View panel);
+    }
+
+    interface SlidingPanelLayoutImpl {
+        void invalidateChildRegion(SplitView parent, View child);
+    }
+
+    /**
+     * No-op stubs for {@link PanelSlideListener}. If you only want to implement a subset of the
+     * listener methods you can extend this instead of implement the full interface.
+     */
+    public static class SimplePanelSlideListener implements PanelSlideListener {
+        @Override
+        public void onPanelSlide(View panel, float slideOffset) {
+        }
+
+        @Override
+        public void onPanelOpened(View panel) {
+        }
+
+        @Override
+        public void onPanelClosed(View panel) {
+        }
+    }
+
+    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+        private static final int[] ATTRS = new int[]{
+                android.R.attr.layout_weight
+        };
+
+        /**
+         * The weighted proportion of how much of the leftover space this child should consume after
+         * measurement.
+         */
+        public float weight = 0;
+
+        /**
+         * True if this pane is the slideable pane in the layout.
+         */
+        boolean slideable;
+
+        /**
+         * True if this view should be drawn dimmed when it's been offset from its default
+         * position.
+         */
+        boolean dimWhenOffset;
+
+        Paint dimPaint;
+
+        public LayoutParams() {
+            super(FILL_PARENT, FILL_PARENT);
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        public LayoutParams(android.view.ViewGroup.LayoutParams source) {
+            super(source);
+        }
+
+        public LayoutParams(MarginLayoutParams source) {
+            super(source);
+        }
+
+        public LayoutParams(LayoutParams source) {
+            super(source);
+            this.weight = source.weight;
+        }
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+
+            final TypedArray a = c.obtainStyledAttributes(attrs, ATTRS);
+            this.weight = a.getFloat(0, 0);
+            a.recycle();
+        }
+
+    }
+
+    static class SavedState extends BaseSavedState {
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+        boolean isOpen;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            isOpen = in.readInt() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(isOpen ? 1 : 0);
+        }
+    }
+
+    static class SlidingPanelLayoutImplBase implements SlidingPanelLayoutImpl {
+        public void invalidateChildRegion(SplitView parent, View child) {
+            ViewCompat.postInvalidateOnAnimation(parent, child.getLeft(), child.getTop(),
+                    child.getRight(), child.getBottom());
+        }
+    }
+
+    static class SlidingPanelLayoutImplJB extends SlidingPanelLayoutImplBase {
+        /*
+         * Private API hacks! Nasty! Bad!
+         *
+         * In Jellybean, some optimizations in the hardware UI renderer
+         * prevent a changed Paint on a View using a hardware layer from having
+         * the intended effect. This twiddles some internal bits on the view to force
+         * it to recreate the display list.
+         */
+        private Method mGetDisplayList;
+        private Field mRecreateDisplayList;
+
+        SlidingPanelLayoutImplJB() {
+            try {
+                mGetDisplayList = View.class.getDeclaredMethod("getDisplayList", (Class[]) null);
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Couldn't fetch getDisplayList method; dimming won't work right.", e);
+            }
+            try {
+                mRecreateDisplayList = View.class.getDeclaredField("mRecreateDisplayList");
+                mRecreateDisplayList.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                Log.e(TAG, "Couldn't fetch mRecreateDisplayList field; dimming will be slow.", e);
+            }
+        }
+
+        @Override
+        public void invalidateChildRegion(SplitView parent, View child) {
+            if (mGetDisplayList != null && mRecreateDisplayList != null) {
+                try {
+                    mRecreateDisplayList.setBoolean(child, true);
+                    mGetDisplayList.invoke(child, (Object[]) null);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error refreshing display list state", e);
+                }
+            } else {
+                // Slow path. REALLY slow path. Let's hope we don't get here.
+                child.invalidate();
+                return;
+            }
+            super.invalidateChildRegion(parent, child);
+        }
+    }
+
+    static class SlidingPanelLayoutImplJBMR1 extends SlidingPanelLayoutImplBase {
+        @Override
+        public void invalidateChildRegion(SplitView parent, View child) {
+            ViewCompat.setLayerPaint(child, ((LayoutParams) child.getLayoutParams()).dimPaint);
+        }
     }
 
     private class DragHelperCallback extends ViewDragHelper.Callback {
@@ -1077,153 +1203,6 @@ public class SplitView extends ViewGroup {
         @Override
         public void onEdgeDragStarted(int edgeFlags, int pointerId) {
             mDragHelper.captureChildView(mSlideableView, pointerId);
-        }
-    }
-
-    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
-        private static final int[] ATTRS = new int[]{
-                android.R.attr.layout_weight
-        };
-
-        /**
-         * The weighted proportion of how much of the leftover space this child should consume after
-         * measurement.
-         */
-        public float weight = 0;
-
-        /**
-         * True if this pane is the slideable pane in the layout.
-         */
-        boolean slideable;
-
-        /**
-         * True if this view should be drawn dimmed when it's been offset from its default
-         * position.
-         */
-        boolean dimWhenOffset;
-
-        Paint dimPaint;
-
-        public LayoutParams() {
-            super(FILL_PARENT, FILL_PARENT);
-        }
-
-        public LayoutParams(int width, int height) {
-            super(width, height);
-        }
-
-        public LayoutParams(android.view.ViewGroup.LayoutParams source) {
-            super(source);
-        }
-
-        public LayoutParams(MarginLayoutParams source) {
-            super(source);
-        }
-
-        public LayoutParams(LayoutParams source) {
-            super(source);
-            this.weight = source.weight;
-        }
-
-        public LayoutParams(Context c, AttributeSet attrs) {
-            super(c, attrs);
-
-            final TypedArray a = c.obtainStyledAttributes(attrs, ATTRS);
-            this.weight = a.getFloat(0, 0);
-            a.recycle();
-        }
-
-    }
-
-    static class SavedState extends BaseSavedState {
-        boolean isOpen;
-
-        SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        private SavedState(Parcel in) {
-            super(in);
-            isOpen = in.readInt() != 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeInt(isOpen ? 1 : 0);
-        }
-
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-                    public SavedState createFromParcel(Parcel in) {
-                        return new SavedState(in);
-                    }
-
-                    public SavedState[] newArray(int size) {
-                        return new SavedState[size];
-                    }
-                };
-    }
-
-    interface SlidingPanelLayoutImpl {
-        void invalidateChildRegion(SplitView parent, View child);
-    }
-
-    static class SlidingPanelLayoutImplBase implements SlidingPanelLayoutImpl {
-        public void invalidateChildRegion(SplitView parent, View child) {
-            ViewCompat.postInvalidateOnAnimation(parent, child.getLeft(), child.getTop(),
-                    child.getRight(), child.getBottom());
-        }
-    }
-
-    static class SlidingPanelLayoutImplJB extends SlidingPanelLayoutImplBase {
-        /*
-         * Private API hacks! Nasty! Bad!
-         *
-         * In Jellybean, some optimizations in the hardware UI renderer
-         * prevent a changed Paint on a View using a hardware layer from having
-         * the intended effect. This twiddles some internal bits on the view to force
-         * it to recreate the display list.
-         */
-        private Method mGetDisplayList;
-        private Field mRecreateDisplayList;
-
-        SlidingPanelLayoutImplJB() {
-            try {
-                mGetDisplayList = View.class.getDeclaredMethod("getDisplayList", (Class[]) null);
-            } catch (NoSuchMethodException e) {
-                Log.e(TAG, "Couldn't fetch getDisplayList method; dimming won't work right.", e);
-            }
-            try {
-                mRecreateDisplayList = View.class.getDeclaredField("mRecreateDisplayList");
-                mRecreateDisplayList.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                Log.e(TAG, "Couldn't fetch mRecreateDisplayList field; dimming will be slow.", e);
-            }
-        }
-
-        @Override
-        public void invalidateChildRegion(SplitView parent, View child) {
-            if (mGetDisplayList != null && mRecreateDisplayList != null) {
-                try {
-                    mRecreateDisplayList.setBoolean(child, true);
-                    mGetDisplayList.invoke(child, (Object[]) null);
-                } catch (Exception e) {
-                    Log.e(TAG, "Error refreshing display list state", e);
-                }
-            } else {
-                // Slow path. REALLY slow path. Let's hope we don't get here.
-                child.invalidate();
-                return;
-            }
-            super.invalidateChildRegion(parent, child);
-        }
-    }
-
-    static class SlidingPanelLayoutImplJBMR1 extends SlidingPanelLayoutImplBase {
-        @Override
-        public void invalidateChildRegion(SplitView parent, View child) {
-            ViewCompat.setLayerPaint(child, ((LayoutParams) child.getLayoutParams()).dimPaint);
         }
     }
 
@@ -1328,9 +1307,5 @@ public class SplitView extends ViewGroup {
             }
             mPostedRunnables.remove(this);
         }
-    }
-
-    private boolean isLayoutRtlSupport() {
-        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 }

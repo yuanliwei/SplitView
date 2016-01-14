@@ -32,13 +32,26 @@ import android.widget.TextView;
 
 public class SplitView3 extends LinearLayout {
     private static final String TAG = "SplitView3";
+    View vHead;                   //视频
+    WebView vTop;                 //题干
+    View vCenter;                 //拖动条
+    ViewPager vBottom;            //选项
+    View dragView;                //当前拖动的View
+    int vCenterHeight = 10;       //拖动控件的高度
+    int vHeadHeight = 320;        //视频控件高度
+    int vState = 1;               //视频控件状态 0:折叠 1:展开
+    float videoPercent;           //视频控件高度百分比
+    float w_h = 16 / 9f;          //视频画面宽高比
+    float vtH;                    //题干View高度
+    float vbH;                    //选项View高度
     private ViewDragHelper mDragger;
     private boolean hasVideo = true;      //是否有视频
     private boolean hasChoice = true;     //是否有选项
     private boolean showVideo = true;     //是否显示视频
     private float t_b = 3 / 2f;             //上下两部分高度比例
-
     private boolean hasInit = false;
+    private boolean firstLayout = true;
+    private Rect r = new Rect();
 
     public SplitView3(Context context) {
         this(context, null);
@@ -47,23 +60,6 @@ public class SplitView3 extends LinearLayout {
     public SplitView3(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
-
-
-    View vHead;                   //视频
-    WebView vTop;                 //题干
-    View vCenter;                 //拖动条
-    ViewPager vBottom;            //选项
-
-    View dragView;                //当前拖动的View
-
-    int vCenterHeight = 10;       //拖动控件的高度
-    int vHeadHeight = 320;        //视频控件高度
-    int vState = 1;               //视频控件状态 0:折叠 1:展开
-    float videoPercent;           //视频控件高度百分比
-    float w_h = 16 / 9f;          //视频画面宽高比
-
-    float vtH;                    //题干View高度
-    float vbH;                    //选项View高度
 
     public SplitView3(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -313,8 +309,6 @@ public class SplitView3 extends LinearLayout {
         hasInit = true;
     }
 
-    private boolean firstLayout = true;
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
@@ -324,7 +318,6 @@ public class SplitView3 extends LinearLayout {
             initViewState(hasVideo, showVideo, hasChoice, t_b);
         }
     }
-
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
@@ -371,8 +364,6 @@ public class SplitView3 extends LinearLayout {
         }
         return mDragger.shouldInterceptTouchEvent(event);
     }
-
-    private Rect r = new Rect();
 
     /**
      * 初始化当前拖动的view

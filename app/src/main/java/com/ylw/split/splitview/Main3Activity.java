@@ -14,6 +14,14 @@ import android.webkit.WebViewClient;
 
 public class Main3Activity extends Activity {
 
+    WebViewClient wbClient = new WebViewClient() {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
+            view.loadUrl(url);
+            return true;
+        }
+    };
     private PagerAdapter adapter;
     private LayoutInflater inflater;
 
@@ -46,7 +54,7 @@ public class Main3Activity extends Activity {
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                WebView textView = (WebView) inflater.inflate(R.layout.webview, null);
+                WebView textView = (WebView) inflater.inflate(R.layout.hw_webview, null);
 //                textView.setText("Page : " + position);
 //                textView.setTextSize(60);
 //                textView.setTextColor(0xff88ff66);
@@ -68,14 +76,5 @@ public class Main3Activity extends Activity {
         wBottom.setAdapter(adapter);
         wBottom.setOffscreenPageLimit(5);
     }
-
-    WebViewClient wbClient = new WebViewClient() {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
-            view.loadUrl(url);
-            return true;
-        }
-    };
 
 }
